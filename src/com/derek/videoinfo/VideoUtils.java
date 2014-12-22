@@ -10,8 +10,15 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
 public class VideoUtils {
 
+	public static void main(String[] args){
+		System.out.println("123");
+	}
+	
 	public static String[] getVideoInfo(String url){
 		String regForURL="(youku.com|tudou.com|v.qq.com|letv.com)";
 		Pattern pUrl = Pattern.compile(regForURL);
@@ -32,21 +39,6 @@ public class VideoUtils {
 			}
 		}
 		return null;
-		/*net.sf.json.JSONArray arr=new net.sf.json.JSONArray();
-		try {
-			URL myurl = new URL("http://v.youku.com/player/getPlayList/VideoIDS/"+videoId+"/timezone/+08/version/5/source/out?password=&ran=2513&n=3");
-			InputStreamReader isr = new InputStreamReader(myurl.openStream());
-			BufferedReader br = new BufferedReader(isr);
-			String urls = br.readLine();
-			br.close();
-			net.sf.json.JSONObject json = net.sf.json.JSONObject.fromObject(urls);
-			arr = json.getJSONArray("data");
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		return net.sf.json.JSONObject.fromObject(arr.get(0)).get("logo").toString();*/
 	}
 	
 	private static String[] parseYouku(String url){
@@ -66,14 +58,14 @@ public class VideoUtils {
 			}
 		}
 		
-		net.sf.json.JSONArray arr=new net.sf.json.JSONArray();
+		JSONArray arr=new JSONArray();
 		try {
 			URL myurl = new URL("http://v.youku.com/player/getPlayList/VideoIDS/"+id+"/timezone/+08/version/5/source/out?password=&ran=2513&n=3");
 			InputStreamReader isr = new InputStreamReader(myurl.openStream());
 			BufferedReader br = new BufferedReader(isr);
 			String urls = br.readLine();
 			br.close();
-			net.sf.json.JSONObject json = net.sf.json.JSONObject.fromObject(urls);
+			JSONObject json = JSONObject.fromObject(urls);
 			arr = json.getJSONArray("data");
 			if(arr.size()==0){
 				return null;
@@ -84,7 +76,7 @@ public class VideoUtils {
 		}
 		
 		result[0]="http://player.youku.com/player.php/sid/"+id+"/v.swf";
-		result[1]=net.sf.json.JSONObject.fromObject(arr.get(0)).get("logo").toString();
+		result[1]=JSONObject.fromObject(arr.get(0)).get("logo").toString();
 		return result;
 	}
 	
@@ -230,22 +222,14 @@ public class VideoUtils {
 	}
 	
 	private static String getSocketContent(String host,String path){
-		//ä½???³è?·å??ä»£ç?????ç½?ç«?
-        //String host = "www.iqiyi.com";
-        //èµ·å??é¡µé??ï¼?/ä¸ºæ?¹é¡µ
-        //String path = "/v_19rrnkj28k.html#curid=255167700_ace48b3f02842d76eb04a9022a834313";
         String result="";
         try
         {
-            //è®¾ç½®ç«???£ï?????å¸?httpç«???£ä??å°±æ??80ç½?ï¼?ä½???¨å?°å?????ä¸?æ²¡è??å°±æ??è¿?ä¸????
             int port = 80;
-            //??¨å?????????????·å??IP??°å??
             InetAddress addr = InetAddress.getByName(host);
             
-            //å»ºç??ä¸?ä¸?Socket 
             Socket socket = new Socket(addr, port);
 
-            //????????½ä»¤,??????å°±æ?????Socket??????æµ??????ºç??ä¸????å¤?ä¸?äº???¡æ??ä¿¡æ??ï¼?è¯????è¯·ä??è§?HTTP???è®?
             BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
             wr.write("GET " + path + " HTTP/1.0\r\n");
             wr.write("HOST:" + host + "\r\n");
@@ -253,7 +237,6 @@ public class VideoUtils {
             wr.write("\r\n");
             wr.flush();
             
-            //??¥æ??Socketè¿???????ç»????,å¹¶æ????°å?ºæ??
             BufferedReader rd = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String line;
             while ((line = rd.readLine()) != null)
